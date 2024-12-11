@@ -1,12 +1,9 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
+import { AuthRequest } from "../types/AuthRequest";
 import jwt from "jsonwebtoken";
 
 interface JwtPayload {
   userId: string;
-}
-
-interface AuthRequest extends Request {
-  user?: string;
 }
 
 export function auth(
@@ -23,7 +20,7 @@ export function auth(
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
-    req.user = decoded.userId;
+    req.userId = decoded.userId;
     next();
   } catch (error) {
     res.status(401).json({ message: "Token is not valid" });
