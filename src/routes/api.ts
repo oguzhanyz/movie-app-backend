@@ -9,7 +9,7 @@ router.get("/search", authMiddleware, apiController.searchMovie); // search movi
 
 // router.get("/watchlist"); // retrieve user's watchlist
 
-// router.post("/watchlist"); // add movie to user's watchlist
+router.post("/watchlist", authMiddleware, apiController.addMovieToWatchlist); // add movie to user's watchlist
 
 // router.get("/watchlist/filter"); // filter user's watchlist
 

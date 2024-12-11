@@ -1,6 +1,6 @@
 import { Schema, model, Document } from "mongoose";
 
-interface IWatchlist extends Document {
+export interface IWatchlist extends Document {
   userId: Schema.Types.ObjectId;
   movies: any[]; // Store movies as an array of any objects
 }
