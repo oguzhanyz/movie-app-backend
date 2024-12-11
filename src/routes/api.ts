@@ -1,10 +1,11 @@
 import express from "express";
 
 import * as apiController from "../controllers/apiController";
+import { auth as authMiddleware } from "../middleware/auth";
 
 const router = express.Router();
 
-router.get("/search", apiController.searchMovie); // search movie database
+router.get("/search", authMiddleware, apiController.searchMovie); // search movie database
 
 // router.get("/watchlist"); // retrieve user's watchlist
 

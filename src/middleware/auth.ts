@@ -1,23 +1,28 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
+interface JwtPayload {
+  userId: string;
+}
+
 interface AuthRequest extends Request {
   user?: string;
 }
 
-export default function auth(
+export function auth(
   req: AuthRequest,
   res: Response,
   next: NextFunction
-) {
+): void {
   const token = req.header("Authorization")?.split(" ")[1];
-  if (!token)
-    return res.status(401).json({ message: "No token, authorization denied" });
+
+  if (!token) {
+    res.status(401).json({ message: "No token, authorization denied" });
+    return;
+  }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-      userId: string;
-    };
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
     req.user = decoded.userId;
     next();
   } catch (error) {
