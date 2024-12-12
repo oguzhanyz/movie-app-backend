@@ -3,6 +3,7 @@ import Movie from "../models/Movie";
 import Watchlist from "../models/Watchlist";
 import { IWatchlist } from "../models/Watchlist";
 import { AuthRequest } from "../types/AuthRequest";
+import { MovieFilterQuery } from "../types/MovieFilterQuery";
 
 export const searchMovie = async (
   req: Request,
@@ -65,7 +66,7 @@ export const retrieveWatchlist = async (
   try {
     const watchlist: IWatchlist | null = await Watchlist.findOne({ userId });
     if (!watchlist) {
-      return res.status(400).json({ error: "Watchlist cannot found" });
+      return res.status(400).json({ error: "Watchlist not found" });
     }
     const movies = await Movie.find({
       _id: { $in: watchlist.movies },
@@ -73,5 +74,50 @@ export const retrieveWatchlist = async (
     return res.status(200).json(movies);
   } catch (err) {
     return res.status(500).json({ error: "Server error." });
+  }
+};
+
+export const filterMovies = async (
+  req: AuthRequest,
+  res: Response
+): Promise<any> => {
+  try {
+    const { minLength, maxLength, genres }: MovieFilterQuery = req.query;
+    const userId = req.userId;
+
+    const watchlist: IWatchlist | null = await Watchlist.findOne({ userId });
+    if (!watchlist) {
+      return res.status(400).json({ error: "Watchlist not found" });
+    }
+
+    const filter: any = {
+      _id: { $in: watchlist.movies },
+    };
+
+    if (minLength || maxLength) {
+      filter.runtimeMinutes = {};
+
+      if (minLength) {
+        filter.runtimeMinutes.$gte = parseInt(minLength, 10);
+      }
+
+      if (maxLength) {
+        filter.runtimeMinutes.$lte = parseInt(maxLength, 10);
+      }
+    }
+
+    if (genres) {
+      filter.genres = { $all: genres };
+    }
+
+    const movies = await Movie.find(filter).limit(100).exec();
+
+    return res.json(movies);
+  } catch (error) {
+    console.error("Error filtering movies:", error);
+    return res.status(500).json({
+      message: "Error filtering movies",
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
   }
 };
