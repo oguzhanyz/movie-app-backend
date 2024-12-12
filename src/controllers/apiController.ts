@@ -55,3 +55,23 @@ export const addMovieToWatchlist = async (
     res.status(500).json({ error: "Server error." });
   }
 };
+
+export const retrieveWatchlist = async (
+  req: AuthRequest,
+  res: Response
+): Promise<any> => {
+  const userId = req.userId;
+
+  try {
+    const watchlist: IWatchlist | null = await Watchlist.findOne({ userId });
+    if (!watchlist) {
+      return res.status(400).json({ error: "Watchlist cannot found" });
+    }
+    const movies = await Movie.find({
+      _id: { $in: watchlist.movies },
+    });
+    return res.status(200).json(movies);
+  } catch (err) {
+    return res.status(500).json({ error: "Server error." });
+  }
+};
