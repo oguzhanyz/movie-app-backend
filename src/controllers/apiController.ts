@@ -162,3 +162,28 @@ export const filterMovies = async (
     });
   }
 };
+
+export const getRandomMovie = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const aggregate = await Movie.aggregate([
+      {
+        $match: {
+          startYear: { $exists: true, $ne: null },
+          runtimeMinutes: { $exists: true, $ne: null },
+          genres: { $exists: true, $ne: null },
+        },
+      },
+      { $sample: { size: 1 } },
+    ]);
+    const randomMovie = aggregate[0];
+    if (!randomMovie) {
+      return res.status(404).json({ message: "Could not fetch movie." });
+    }
+    return res.status(200).json(randomMovie);
+  } catch (err) {
+    return res.status(500).json({ error: "Server error." });
+  }
+};

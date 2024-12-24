@@ -19,4 +19,6 @@ router.delete(
 
 router.get("/watchlist/filter", authMiddleware, apiController.filterMovies); // filter user's watchlist
 
+router.get("/movie/random", apiController.getRandomMovie); // Get a random movie for the home page
+
 export default router;
