@@ -26,6 +26,19 @@ export const registerUser = async (
     errors.push("Password must be at least 6 characters long");
   }
 
+  const existingUser = await User.findOne({
+    $or: [{ username: username }, { email: email }],
+  });
+
+  if (existingUser) {
+    if (existingUser.username === username) {
+      return res.status(409).json({ message: "Username already exists." });
+    }
+    if (existingUser.email === email) {
+      return res.status(409).json({ message: "Email already exists." });
+    }
+  }
+
   if (errors.length > 0) return res.status(400).json({ errors });
 
   try {
@@ -43,7 +56,7 @@ export const registerUser = async (
     const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET!, {
       expiresIn: "1h",
     });
-    res.status(201).json({ message: "User registered successfully", token });
+    res.status(201).json({ userName: newUser.username, userToken: token });
   } catch (error) {
     res.status(500).json({ error: "Server error" });
   }
