@@ -11,6 +11,12 @@ router.get("/watchlist", authMiddleware, apiController.retrieveWatchlist); // re
 
 router.post("/watchlist", authMiddleware, apiController.addMovieToWatchlist); // add movie to user's watchlist
 
+router.delete(
+  "/watchlist/:id",
+  authMiddleware,
+  apiController.removeMovieFromWatchlist
+); // remove movie from user's watchlist
+
 router.get("/watchlist/filter", authMiddleware, apiController.filterMovies); // filter user's watchlist
 
 export default router;

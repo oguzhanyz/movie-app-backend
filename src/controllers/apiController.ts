@@ -16,7 +16,8 @@ export const searchMovie = async (
   }
 
   try {
-    const movies = await Movie.find({ primaryTitle: title });
+    const regex = new RegExp(`${title}`, "i");
+    const movies = await Movie.find({ primaryTitle: regex }).limit(10);
     return res.json(movies);
   } catch (error) {
     return res.status(500).json({ error: "Server error." });
@@ -51,7 +52,47 @@ export const addMovieToWatchlist = async (
 
     watchlist.movies.push(movieId);
     await watchlist.save();
-    return res.status(201).json(watchlist);
+    return res
+      .status(201)
+      .json({ message: "Added to watchlist successfully." });
+  } catch (err) {
+    res.status(500).json({ error: "Server error." });
+  }
+};
+
+export const removeMovieFromWatchlist = async (
+  req: AuthRequest,
+  res: Response
+): Promise<any> => {
+  const { id } = req.params;
+  const userId = req.userId;
+
+  if (!userId || !id) {
+    return res
+      .status(400)
+      .json({ error: "User ID and Movie ID are required." });
+  }
+
+  try {
+    const watchlist: IWatchlist | null = await Watchlist.findOne({ userId });
+
+    if (!watchlist) {
+      return res.status(400).json({ error: "Watchlist not found" });
+    }
+
+    const movieIndex = watchlist.movies.findIndex(
+      (movie) => movie.toString() === id
+    );
+
+    if (movieIndex === -1) {
+      return res.status(404).json({ error: "Movie not in watchlist." });
+    }
+
+    watchlist.movies.splice(movieIndex, 1);
+    await watchlist.save();
+    return res
+      .status(200)
+      .json({ message: "Movie deleted from watchlist successfully" });
   } catch (err) {
     res.status(500).json({ error: "Server error." });
   }
