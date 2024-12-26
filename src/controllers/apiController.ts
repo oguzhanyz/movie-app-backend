@@ -5,11 +5,14 @@ import { IWatchlist } from "../models/Watchlist";
 import { AuthRequest } from "../types/AuthRequest";
 import { MovieFilterQuery } from "../types/MovieFilterQuery";
 
+const LIMIT = 20;
+
 export const searchMovie = async (
   req: Request,
   res: Response
 ): Promise<any> => {
   const { title } = req.query;
+  const page = parseInt(req.query.p as string) || 1;
 
   if (!title) {
     return res.status(400).json({ error: "Title must be provided." });
@@ -17,8 +20,16 @@ export const searchMovie = async (
 
   try {
     const regex = new RegExp(`${title}`, "i");
-    const movies = await Movie.find({ primaryTitle: regex }).limit(10);
-    return res.json(movies);
+    const totalMovies = await Movie.countDocuments({ primaryTitle: regex });
+    const movies = await Movie.find({ primaryTitle: regex })
+      .skip((page - 1) * LIMIT)
+      .limit(LIMIT);
+    return res.status(200).json({
+      movies,
+      totalMovies,
+      currentPage: page,
+      totalPages: Math.ceil(totalMovies / LIMIT),
+    });
   } catch (error) {
     return res.status(500).json({ error: "Server error." });
   }
