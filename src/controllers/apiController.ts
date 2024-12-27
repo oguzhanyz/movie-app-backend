@@ -25,6 +25,7 @@ export const searchMovie = async (
       startYear: { $ne: null },
       runtimeMinutes: { $ne: null },
       genres: { $ne: [] },
+      numVotes: { $exists: true, $ne: null },
     };
     const totalMovies = await Movie.countDocuments(searchFilter);
     const movies = await Movie.find(searchFilter)
@@ -192,6 +193,7 @@ export const getRandomMovie = async (
           startYear: { $exists: true, $ne: null },
           runtimeMinutes: { $exists: true, $ne: null },
           genres: { $exists: true, $ne: null },
+          numVotes: { $exists: true, $ne: null },
         },
       },
       { $sample: { size: 1 } },
