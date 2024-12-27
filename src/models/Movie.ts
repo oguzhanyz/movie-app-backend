@@ -10,6 +10,8 @@ interface IMovie extends Document {
   endYear: number;
   runtimeMinutes: number;
   genres: string[];
+  averageRating: number;
+  numVotes: number;
 }
 
 const MovieSchema = new Schema<IMovie>({
@@ -22,6 +24,8 @@ const MovieSchema = new Schema<IMovie>({
   endYear: { type: Number, default: null },
   runtimeMinutes: { type: Number, required: true },
   genres: { type: [String], required: true },
+  averageRating: { type: Number },
+  numVotes: { type: Number },
 });
 
 export default model<IMovie>("Movie", MovieSchema);

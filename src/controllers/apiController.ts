@@ -20,8 +20,15 @@ export const searchMovie = async (
 
   try {
     const regex = new RegExp(`${title}`, "i");
-    const totalMovies = await Movie.countDocuments({ primaryTitle: regex });
-    const movies = await Movie.find({ primaryTitle: regex })
+    const searchFilter = {
+      primaryTitle: regex,
+      startYear: { $ne: null },
+      runtimeMinutes: { $ne: null },
+      genres: { $ne: [] },
+    };
+    const totalMovies = await Movie.countDocuments(searchFilter);
+    const movies = await Movie.find(searchFilter)
+      .sort({ numVotes: -1, _id: 1 })
       .skip((page - 1) * LIMIT)
       .limit(LIMIT);
     return res.status(200).json({
