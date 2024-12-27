@@ -11,19 +11,21 @@ export const registerUser = async (
 ): Promise<any> => {
   const { username, email, password } = req.body;
 
-  const errors: string[] = [];
-
   if (!username || username.trim() === "") {
-    errors.push("Username is required");
+    return res.status(400).json({ message: "Username is required." });
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!email || !emailRegex.test(email)) {
-    errors.push("Please provide a valid email address");
+    return res
+      .status(400)
+      .json({ message: "Please provide a valid email address" });
   }
 
   if (!password || password.length < 6) {
-    errors.push("Password must be at least 6 characters long");
+    return res
+      .status(400)
+      .json({ message: "Password must be at least 6 characters long" });
   }
 
   const existingUser = await User.findOne({
@@ -38,8 +40,6 @@ export const registerUser = async (
       return res.status(409).json({ message: "Email already exists." });
     }
   }
-
-  if (errors.length > 0) return res.status(400).json({ errors });
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
